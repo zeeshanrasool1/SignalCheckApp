@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_fiber">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SignalCheck"
+                android:textColor="#E9EDF1"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Network Diagnostics Toolkit"
+                android:textColor="#8A96A3"
+                android:textSize="13sp"
+                android:layout_marginBottom="20dp" />
+
+            <!-- IP / ISP SECTION -->
+            <TextView style="@style/SectionTitle" android:text="IP and ISP Info" />
+            <TextView
+                android:id="@+id/ipInfoText"
+                style="@style/CardBox"
+                android:text="Loading..." />
+
+            <!-- PING SECTION -->
+            <TextView style="@style/SectionTitle" android:text="Ping Test" />
+            <EditText
+                android:id="@+id/pingHostInput"
+                style="@style/InputBox"
+                android:text="google.com"
+                android:hint="Host or IP" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/pingButton"
+                style="@style/ActionButton"
+                android:text="Run Ping"
+                app:icon="@android:drawable/ic_menu_send"
+                app:iconTint="#04141C"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+            <TextView
+                android:id="@+id/pingResultText"
+                style="@style/CardBox"
+                android:text="" />
+
+            <!-- TRACEROUTE SECTION -->
+            <TextView style="@style/SectionTitle" android:text="Traceroute (Best-Effort)" />
+            <EditText
+                android:id="@+id/tracerouteHostInput"
+                style="@style/InputBox"
+                android:text="google.com"
+                android:hint="Host or IP" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tracerouteButton"
+                style="@style/OutlineButton"
+                android:text="Run Traceroute"
+                app:icon="@android:drawable/ic_menu_directions"
+                app:iconTint="#E9EDF1"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+            <TextView
+                android:id="@+id/tracerouteResultText"
+                style="@style/CardBox"
+                android:text="" />
+
+            <!-- WIFI SCAN SECTION -->
+            <TextView style="@style/SectionTitle" android:text="WiFi Devices Scan" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/wifiScanButton"
+                style="@style/OutlineButton"
+                android:text="Scan Devices"
+                app:icon="@android:drawable/ic_menu_search"
+                app:iconTint="#E9EDF1"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+            <TextView
+                android:id="@+id/wifiScanResultText"
+                style="@style/CardBox"
+                android:text="" />
+
+            <!-- WIFI ANALYZER SECTION -->
+            <TextView style="@style/SectionTitle" android:text="WiFi Analyzer (Live)" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/wifiAnalyzerButton"
+                style="@style/OutlineButton"
+                android:text="Start Live Analyzer"
+                app:icon="@android:drawable/ic_menu_compass"
+                app:iconTint="#E9EDF1"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+            <TextView
+                android:id="@+id/wifiAnalyzerSummaryText"
+                style="@style/CardBox"
+                android:text=""
+                android:layout_marginBottom="8dp" />
+            <LinearLayout
+                android:id="@+id/wifiAnalyzerChart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#161D24"
+                android:padding="10dp" />
+
+            <!-- SPEED TEST SECTION -->
+            <TextView style="@style/SectionTitle" android:text="Speed Test" android:layout_marginTop="18dp"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/speedTestButton"
+                style="@style/OutlineButton"
+                android:text="Start Speed Test"
+                app:icon="@android:drawable/ic_menu_upload"
+                app:iconTint="#E9EDF1"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
+            <TextView
+                android:id="@+id/speedTestResultText"
+                style="@style/CardBox"
+                android:text=""
+                android:layout_marginBottom="12dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- PERSISTENT BOTTOM STATUS BAR -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#161D24"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+        <View
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:background="#00D4FF"
+            android:layout_marginEnd="8dp" />
+        <TextView
+            android:id="@+id/bottomIpText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Loading IP..."
+            android:textColor="#E9EDF1"
+            android:fontFamily="monospace"
+            android:textSize="11sp"
+            android:singleLine="true"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Powered by ZAR"
+        android:textColor="#4A5560"
+        android:textSize="10sp"
+        android:gravity="center"
+        android:background="#0B1015"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:letterSpacing="0.08" />
+
+</LinearLayout>

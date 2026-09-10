@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.SignalCheck" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#00D4FF</item>
+        <item name="colorPrimaryDark">#05080B</item>
+        <item name="android:windowBackground">#05080B</item>
+    </style>
+</resources>
