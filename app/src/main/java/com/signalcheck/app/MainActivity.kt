@@ -74,4 +74,34 @@ class MainActivity : AppCompatActivity() {
         tv.setBackgroundColor(android.graphics.Color.BLACK)
         tv.textSize = 11f
         tv.setPadding(24, 48, 24, 24)
-        val scroll = android.widget.ScrollView(t
+        val scroll = android.widget.ScrollView(this)
+        scroll.addView(tv)
+        setContentView(scroll)
+    }
+
+    private fun setupUi() {
+        setContentView(R.layout.activity_main)
+
+        ipInfoText = findViewById(R.id.ipInfoText)
+        bottomIpText = findViewById(R.id.bottomIpText)
+        pingHostInput = findViewById(R.id.pingHostInput)
+        pingResultText = findViewById(R.id.pingResultText)
+        tracerouteHostInput = findViewById(R.id.tracerouteHostInput)
+        tracerouteResultText = findViewById(R.id.tracerouteResultText)
+        wifiScanResultText = findViewById(R.id.wifiScanResultText)
+        wifiAnalyzerButton = findViewById(R.id.wifiAnalyzerButton)
+        wifiAnalyzerSummaryText = findViewById(R.id.wifiAnalyzerSummaryText)
+        wifiAnalyzerChart = findViewById(R.id.wifiAnalyzerChart)
+        speedTestResultText = findViewById(R.id.speedTestResultText)
+
+        requestNeededPermissions()
+
+        findViewById<Button>(R.id.pingButton).setOnClickListener {
+            runPing(pingHostInput.text.toString().trim())
+        }
+        findViewById<Button>(R.id.tracerouteButton).setOnClickListener {
+            runTraceroute(tracerouteHostInput.text.toString().trim())
+        }
+        findViewById<Button>(R.id.wifiScanButton).setOnClickListener {
+            runWifiScan()
+        }
