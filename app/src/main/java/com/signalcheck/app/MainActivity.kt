@@ -105,3 +105,27 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.wifiScanButton).setOnClickListener {
             runWifiScan()
         }
+wifiAnalyzerButton.setOnClickListener {
+            if (isAnalyzerRunning) stopWifiAnalyzer() else startWifiAnalyzer()
+        }
+        findViewById<Button>(R.id.speedTestButton).setOnClickListener {
+            runSpeedTest()
+        }
+
+        loadIpInfo()
+    }
+
+    private fun requestNeededPermissions() {
+        val perms = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (Build.VERSION.SDK_INT >= 33) {
+            perms.add(Manifest.permission.NEARBY_WIFI_DEVICES)
+        }
+        val notGranted = perms.filter {
+            ActivityCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (notGranted.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, notGranted.toTypedArray(), 100)
+        }
+    }
+
+    private fun dp(value: Int): Int = (value * resources.displayMetrics.density).roundToInt()
