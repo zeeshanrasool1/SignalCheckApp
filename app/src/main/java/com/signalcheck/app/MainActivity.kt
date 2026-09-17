@@ -397,3 +397,59 @@ private fun stopWifiAnalyzer() {
             row.addView(track)
             row.addView(countLabel)
             wifiAnalyzerChart.addView(row)
+}
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopWifiAnalyzer()
+    }
+
+    // ---------------- SPEED TEST ----------------
+    private fun runSpeedTest() {
+        speedTestResultText.text = "Running download test...\n"
+        Thread {
+            try {
+                val downUrl = URL("https://speed.cloudflare.com/__down?bytes=25000000")
+                val downConn = downUrl.openConnection() as HttpURLConnection
+                downConn.connectTimeout = 10000
+                val startDown = System.currentTimeMillis()
+                var totalBytes = 0L
+                downConn.inputStream.use { input ->
+                    val buffer = ByteArray(65536)
+                    var read: Int
+                    while (input.read(buffer).also { read = it } != -1) {
+                        totalBytes += read
+                    }
+                }
+                val downSeconds = (System.currentTimeMillis() - startDown) / 1000.0
+                val downMbps = ((totalBytes * 8) / downSeconds / 1_000_000).roundToInt()
+
+                runOnUiThread {
+                    speedTestResultText.text = "Download: $downMbps Mbps\nRunning upload test...\n"
+                }
+
+                val upUrl = URL("https://speed.cloudflare.com/__up")
+                val upConn = upUrl.openConnection() as HttpURLConnection
+                upConn.doOutput = true
+                upConn.requestMethod = "POST"
+                upConn.connectTimeout = 10000
+                val uploadSize = 8_000_000
+                val payload = ByteArray(uploadSize)
+                val startUp = System.currentTimeMillis()
+                val out: OutputStream = upConn.outputStream
+                out.write(payload)
+                out.flush()
+                out.close()
+                upConn.responseCode
+                val upSeconds = (System.currentTimeMillis() - startUp) / 1000.0
+                val upMbps = ((uploadSize * 8) / upSeconds / 1_000_000).roundToInt()
+
+                runOnUiThread {
+                    speedTestResultText.text = "Download: $downMbps Mbps\nUpload: $upMbps Mbps"
+                }
+            } catch (e: Exception) {
+                runOnUiThread { speedTestResultText.text = "Speed test failed: ${e.message}" }
+            }
+        }.start()
+    }
