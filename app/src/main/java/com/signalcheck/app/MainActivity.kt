@@ -129,3 +129,56 @@ wifiAnalyzerButton.setOnClickListener {
     }
 
     private fun dp(value: Int): Int = (value * resources.displayMetrics.density).roundToInt()
+// ---------------- IP & ISP ----------------
+    private fun loadIpInfo() {
+        Thread {
+            try {
+                val url = URL("https://ipwho.is/")
+                val conn = url.openConnection() as HttpURLConnection
+                conn.connectTimeout = 8000
+                conn.readTimeout = 8000
+                val response = conn.inputStream.bufferedReader().use { it.readText() }
+                val json = JSONObject(response)
+                val connection = json.optJSONObject("connection")
+                val ip = json.optString("ip", "-")
+                val isp = connection?.optString("isp") ?: "-"
+                val text = buildString {
+                    append("Public IP   : $ip\n")
+                    append("ISP         : $isp\n")
+                    append("Organization: ${connection?.optString("org") ?: "-"}\n")
+                    append("ASN         : ${connection?.optString("asn") ?: "-"}\n")
+                    append("City/Country: ${json.optString("city", "-")}, ${json.optString("country", "-")}\n")
+                    append("Type        : ${json.optString("type", "-")}")
+                }
+                runOnUiThread {
+                    ipInfoText.text = text
+                    bottomIpText.text = "IP: $ip   |   ISP: $isp"
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    ipInfoText.text = "Could not load IP info: ${e.message}"
+                    bottomIpText.text = "IP: unavailable"
+                }
+            }
+        }.start()
+    }// ---------------- PING ----------------
+    private fun runPing(host: String) {
+        if (host.isEmpty()) return
+        pingResultText.text = "Pinging $host ...\n"
+        Thread {
+            try {
+                val process = Runtime.getRuntime().exec(arrayOf("/system/bin/ping", "-c", "4", "-W", "2", host))
+                val reader = BufferedReader(InputStreamReader(process.inputStream))
+                val output = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    output.append(line).append("\n")
+                    val current = output.toString()
+                    runOnUiThread { pingResultText.text = current }
+                }
+                process.waitFor()
+            } catch (e: Exception) {
+                runOnUiThread { pingResultText.text = "Ping failed: ${e.message}\n(/system/bin/ping may be restricted on some devices)" }
+            }
+        }.start()
+    }
