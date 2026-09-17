@@ -309,3 +309,91 @@ wifiAnalyzerButton.setOnClickListener {
         }
         analyzerHandler.post(scanLoop)
     }
+private fun stopWifiAnalyzer() {
+        isAnalyzerRunning = false
+        wifiAnalyzerButton.text = "Start Live Analyzer"
+        analyzerHandler.removeCallbacksAndMessages(null)
+        if (wifiScanReceiver != null) {
+            try { unregisterReceiver(wifiScanReceiver) } catch (e: Exception) { }
+            wifiScanReceiver = null
+        }
+    }
+
+    private fun renderAnalyzerResults(results: List<android.net.wifi.ScanResult>?) {
+        if (results.isNullOrEmpty()) {
+            wifiAnalyzerSummaryText.text = "No networks found yet. Make sure WiFi and Location are ON."
+            return
+        }
+
+        val channelCount = mutableMapOf<Int, Int>()
+        val channelStrength = mutableMapOf<Int, Int>()
+
+        for (r in results) {
+            val channel = frequencyToChannel(r.frequency)
+            if (channel == -1 || channel > 14) continue
+            channelCount[channel] = (channelCount[channel] ?: 0) + 1
+            channelStrength[channel] = max(channelStrength[channel] ?: -100, r.level)
+        }
+
+        val candidates = if (channelCount.keys.any { it in listOf(1, 6, 11) }) listOf(1, 6, 11) else channelCount.keys.toList()
+        val best = candidates.minByOrNull { ch -> (channelCount[ch] ?: 0) * 100 + (channelStrength[ch] ?: -100) }
+
+        wifiAnalyzerSummaryText.text = "Recommended channel: ${best ?: "-"}\nNetworks seen: ${results.size}  |  Last updated: ${java.text.SimpleDateFormat("HH:mm:ss").format(java.util.Date())}"
+
+        drawChannelChart(channelCount)
+    }
+    private fun drawChannelChart(channelCount: Map<Int, Int>) {
+        wifiAnalyzerChart.removeAllViews()
+        val maxCount = max(channelCount.values.maxOrNull() ?: 1, 1)
+
+        for (ch in 1..11) {
+            val count = channelCount[ch] ?: 0
+            val fraction = max(count.toFloat() / maxCount, 0.02f)
+            val color = when {
+                count == 0 -> "#00D4FF"
+                count <= 2 -> "#D4A24C"
+                else -> "#E55A4B"
+            }
+
+            val row = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { bottomMargin = dp(6) }
+                gravity = android.view.Gravity.CENTER_VERTICAL
+            }
+
+            val label = TextView(this).apply {
+                text = "Ch $ch"
+                setTextColor(Color.parseColor("#8A96A3"))
+                textSize = 11f
+                layoutParams = LinearLayout.LayoutParams(dp(42), LinearLayout.LayoutParams.WRAP_CONTENT)
+            }
+
+            val track = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                layoutParams = LinearLayout.LayoutParams(0, dp(14), 1f)
+            }
+
+            val bar = View(this).apply {
+                  setBackgroundColor(Color.parseColor(color))
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, fraction)
+            }
+            val spacer = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f - fraction)
+            }
+            track.addView(bar)
+            track.addView(spacer)
+
+            val countLabel = TextView(this).apply {
+                text = "$count"
+                setTextColor(Color.parseColor("#E9EDF1"))
+                textSize = 11f
+                layoutParams = LinearLayout.LayoutParams(dp(24), LinearLayout.LayoutParams.WRAP_CONTENT)
+                gravity = android.view.Gravity.END
+            }
+
+            row.addView(label)
+            row.addView(track)
+            row.addView(countLabel)
+            wifiAnalyzerChart.addView(row)
