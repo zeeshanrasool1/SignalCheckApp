@@ -182,3 +182,130 @@ wifiAnalyzerButton.setOnClickListener {
             }
         }.start()
     }
+// ---------------- TRACEROUTE (best-effort via TTL-limited ping) ----------------
+    private fun runTraceroute(host: String) {
+        if (host.isEmpty()) return
+        tracerouteResultText.text = "Starting traceroute to $host\n(Best-effort - hop IPs may not appear on some devices/Android versions)\n\n"
+        Thread {
+            val resultBuilder = StringBuilder(tracerouteResultText.text.toString())
+            try {
+                for (ttl in 1..30) {
+                    val process = Runtime.getRuntime().exec(arrayOf("/system/bin/ping", "-c", "1", "-W", "2", "-t", ttl.toString(), host))
+                    val reader = BufferedReader(InputStreamReader(process.inputStream))
+                    val lines = reader.readText()
+                    process.waitFor()
+
+                    val hopLine = when {
+                        lines.contains("Time to live exceeded") || lines.contains("Time exceeded") -> {
+                            val ipMatch = Regex("From ([0-9.]+)").find(lines)
+                            "Hop $ttl: ${ipMatch?.groupValues?.get(1) ?: "unknown"}"
+                        }
+                        lines.contains("1 received") || lines.contains("1 packets received") -> {
+                            "Hop $ttl: $host (destination reached)"
+                        }
+                        else -> "Hop $ttl: * * * (no reply)"
+                    }
+                    resultBuilder.append(hopLine).append("\n")
+                    val current = resultBuilder.toString()
+                    runOnUiThread { tracerouteResultText.text = current }
+
+                    if (hopLine.contains("destination reached")) break
+                }
+            } catch (e: Exception) {
+                resultBuilder.append("\nStopped: ${e.message}")
+                val current = resultBuilder.toString()
+                runOnUiThread { tracerouteResultText.text = current }
+            }
+        }.start()
+    }
+    // ---------------- WIFI DEVICE SCAN ----------------
+    private fun runWifiScan() {
+        wifiScanResultText.text = "Scanning local network...\n"
+        Thread {
+            try {
+                val wifiManager = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
+                val dhcp = wifiManager.dhcpInfo
+                val myIp = Formatter.formatIpAddress(dhcp.ipAddress)
+                val prefix = myIp.substringBeforeLast(".")
+
+                val found = StringBuilder()
+                var count = 0
+                val executor = Executors.newFixedThreadPool(48)
+                val futures = (1..254).map { i ->
+                    executor.submit {
+                        val ip = "$prefix.$i"
+                        try {
+                            val addr = InetAddress.getByName(ip)
+                            if (addr.isReachable(400)) {
+                                val hostname = try { addr.canonicalHostName } catch (e: Exception) { ip }
+                                val mac = readMacFromArpCache(ip)
+                                synchronized(found) {
+                                    count++
+                                    found.append("$ip   $hostname   MAC: $mac\n")
+                                }
+                            }
+                        } catch (e: Exception) { }
+                    }
+                }
+                futures.forEach { it.get(2, TimeUnit.SECONDS) }
+                executor.shutdown()
+
+                val summary = "Devices found: $count (subnet $prefix.0/24)\n\n$found"
+                runOnUiThread { wifiScanResultText.text = summary }
+            } catch (e: Exception) {
+                runOnUiThread { wifiScanResultText.text = "Scan failed: ${e.message}" }
+            }
+        }.start()
+    }
+
+    private fun readMacFromArpCache(ip: String): String {
+        return try {
+            val arpFile = java.io.File("/proc/net/arp")
+            if (!arpFile.canRead()) return "N/A (restricted)"
+            arpFile.readLines().drop(1).forEach { line ->
+                val parts = line.trim().split(Regex("\\s+"))
+                if (parts.size >= 4 && parts[0] == ip) {
+                    val mac = parts[3]
+    if (mac != "00:00:00:00:00:00") return mac
+                }
+            }
+            "N/A"
+        } catch (e: Exception) {
+            "N/A (restricted)"
+        }
+    }  
+    // ---------------- WIFI ANALYZER (live, graphical) ----------------
+    private fun frequencyToChannel(freq: Int): Int {
+        return when {
+            freq == 2484 -> 14
+            freq in 2412..2472 -> (freq - 2407) / 5
+            freq in 5170..5825 -> (freq - 5000) / 5
+            else -> -1
+        }
+    }
+
+    private fun startWifiAnalyzer() {
+        isAnalyzerRunning = true
+        wifiAnalyzerButton.text = "Stop Live Analyzer"
+        wifiAnalyzerSummaryText.text = "Scanning nearby WiFi networks...\n(updates roughly every few seconds - Android limits how often apps may scan)"
+
+        val wifiManager = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
+        if (wifiScanReceiver == null) {
+            wifiScanReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    renderAnalyzerResults(wifiManager.scanResults)
+                }
+            }
+            registerReceiver(wifiScanReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+        }
+
+        val scanLoop = object : Runnable {
+            override fun run() {
+                if (!isAnalyzerRunning) return
+                wifiManager.startScan()
+                analyzerHandler.postDelayed(this, analyzerIntervalMs)
+            }
+        }
+        analyzerHandler.post(scanLoop)
+    }
