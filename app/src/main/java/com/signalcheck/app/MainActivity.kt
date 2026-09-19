@@ -45,6 +45,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var wifiAnalyzerSummaryText: TextView
     private lateinit var wifiAnalyzerChart: LinearLayout
     private lateinit var speedTestResultText: TextView
+    private lateinit var downloadSpeedText: TextView
+    private lateinit var uploadSpeedText: TextView
+    private lateinit var speedTestProgress: android.widget.ProgressBar
 
     private var wifiScanReceiver: BroadcastReceiver? = null
     private var isAnalyzerRunning = false
