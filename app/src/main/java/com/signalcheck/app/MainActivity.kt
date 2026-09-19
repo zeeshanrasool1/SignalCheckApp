@@ -96,6 +96,9 @@ class MainActivity : AppCompatActivity() {
         wifiAnalyzerSummaryText = findViewById(R.id.wifiAnalyzerSummaryText)
         wifiAnalyzerChart = findViewById(R.id.wifiAnalyzerChart)
         speedTestResultText = findViewById(R.id.speedTestResultText)
+        downloadSpeedText = findViewById(R.id.downloadSpeedText)
+        uploadSpeedText = findViewById(R.id.uploadSpeedText)
+        speedTestProgress = findViewById(R.id.speedTestProgress)
 
         requestNeededPermissions()
 
