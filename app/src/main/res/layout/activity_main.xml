@@ -90,6 +90,8 @@
                 android:text="Scan Devices"
                 app:icon="@android:drawable/ic_menu_search"
                 app:iconTint="#04141C"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp" />
             <TextView
                 android:id="@+id/wifiScanResultText"
                 style="@style/CardBox"
