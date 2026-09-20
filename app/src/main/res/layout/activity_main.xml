@@ -124,18 +124,87 @@
             <TextView style="@style/SectionTitle" android:text="Speed Test" android:layout_marginTop="18dp"/>
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/speedTestButton"
-                style="@style/OutlineButton"
+                style="@style/ActionButton"
                 android:text="Start Speed Test"
                 app:icon="@android:drawable/ic_menu_upload"
-                app:iconTint="#E9EDF1"
+                app:iconTint="#04141C"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="#161D24"
+                    android:padding="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/downloadSpeedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="#00D4FF"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mbps Download"
+                        android:textColor="#8A96A3"
+                        android:textSize="10sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="#161D24"
+                    android:padding="12dp"
+                    android:layout_marginStart="6dp"
+                    android:gravity="center">
+                    <TextView
+                        android:id="@+id/uploadSpeedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textColor="#00D4FF"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mbps Upload"
+                        android:textColor="#8A96A3"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/speedTestProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="10dp"
+                android:max="100"
+                android:progress="0"
+                android:progressTint="#00D4FF"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/speedTestResultText"
                 style="@style/CardBox"
                 android:text=""
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="12dp" />
-
         </LinearLayout>
     </ScrollView>
 
