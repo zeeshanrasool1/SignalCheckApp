@@ -71,10 +71,10 @@
                 android:hint="Host or IP" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/tracerouteButton"
-                style="@style/OutlineButton"
+                style="@style/ActionButton"
                 android:text="Run Traceroute"
                 app:icon="@android:drawable/ic_menu_directions"
-                app:iconTint="#E9EDF1"
+                app:iconTint="#04141C"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
             <TextView
@@ -85,11 +85,11 @@
             <!-- WIFI SCAN SECTION -->
             <TextView style="@style/SectionTitle" android:text="WiFi Devices Scan" />
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/wifiScanButton"
-                style="@style/OutlineButton"
-                android:text="Scan Devices"
-                app:icon="@android:drawable/ic_menu_search"
-                app:iconTint="#E9EDF1"
+                android:id="@+id/tracerouteButton"
+                style="@style/ActionButton"
+                android:text="Run Traceroute"
+                app:icon="@android:drawable/ic_menu_directions"
+                app:iconTint="#04141C"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
             <TextView
