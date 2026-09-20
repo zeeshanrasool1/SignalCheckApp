@@ -85,13 +85,11 @@
             <!-- WIFI SCAN SECTION -->
             <TextView style="@style/SectionTitle" android:text="WiFi Devices Scan" />
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/tracerouteButton"
+                android:id="@+id/wifiScanButton"
                 style="@style/ActionButton"
-                android:text="Run Traceroute"
-                app:icon="@android:drawable/ic_menu_directions"
+                android:text="Scan Devices"
+                app:icon="@android:drawable/ic_menu_search"
                 app:iconTint="#04141C"
-                app:iconGravity="textStart"
-                app:iconPadding="8dp" />
             <TextView
                 android:id="@+id/wifiScanResultText"
                 style="@style/CardBox"
@@ -101,10 +99,10 @@
             <TextView style="@style/SectionTitle" android:text="WiFi Analyzer (Live)" />
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/wifiAnalyzerButton"
-                style="@style/OutlineButton"
+                style="@style/ActionButton"
                 android:text="Start Live Analyzer"
                 app:icon="@android:drawable/ic_menu_compass"
-                app:iconTint="#E9EDF1"
+                app:iconTint="#04141C"
                 app:iconGravity="textStart"
                 app:iconPadding="8dp" />
             <TextView
