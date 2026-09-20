@@ -414,9 +414,14 @@ private fun stopWifiAnalyzer() {
     // ---------------- SPEED TEST ----------------
     private fun runSpeedTest() {
         speedTestResultText.text = "Running download test...\n"
+        speedTestProgress.visibility = View.VISIBLE
+        speedTestProgress.progress = 0
+        downloadSpeedText.text = "—"
+        uploadSpeedText.text = "—"
         Thread {
             try {
-                val downUrl = URL("https://speed.cloudflare.com/__down?bytes=25000000")
+                val downBytesExpected = 25_000_000L
+                val downUrl = URL("https://speed.cloudflare.com/__down?bytes=$downBytesExpected")
                 val downConn = downUrl.openConnection() as HttpURLConnection
                 downConn.connectTimeout = 10000
                 val startDown = System.currentTimeMillis()
@@ -426,25 +431,37 @@ private fun stopWifiAnalyzer() {
                     var read: Int
                     while (input.read(buffer).also { read = it } != -1) {
                         totalBytes += read
+                        val pct = ((totalBytes * 100) / downBytesExpected).toInt().coerceIn(0, 100)
+                        runOnUiThread { speedTestProgress.progress = pct }
                     }
                 }
                 val downSeconds = (System.currentTimeMillis() - startDown) / 1000.0
                 val downMbps = ((totalBytes * 8) / downSeconds / 1_000_000).roundToInt()
 
                 runOnUiThread {
-                    speedTestResultText.text = "Download: $downMbps Mbps\nRunning upload test...\n"
+                    downloadSpeedText.text = "$downMbps"
+                    speedTestResultText.text = "Running upload test...\n"
+                    speedTestProgress.progress = 0
                 }
 
+                val uploadSize = 8_000_000
                 val upUrl = URL("https://speed.cloudflare.com/__up")
                 val upConn = upUrl.openConnection() as HttpURLConnection
                 upConn.doOutput = true
                 upConn.requestMethod = "POST"
                 upConn.connectTimeout = 10000
-                val uploadSize = 8_000_000
-                val payload = ByteArray(uploadSize)
+                upConn.setFixedLengthStreamingMode(uploadSize)
                 val startUp = System.currentTimeMillis()
                 val out: OutputStream = upConn.outputStream
-                out.write(payload)
+                val chunk = ByteArray(65536)
+                var sent = 0
+                while (sent < uploadSize) {
+                    val toWrite = minOf(chunk.size, uploadSize - sent)
+                    out.write(chunk, 0, toWrite)
+                    sent += toWrite
+                    val pct = (sent * 100) / uploadSize
+                    runOnUiThread { speedTestProgress.progress = pct }
+                }
                 out.flush()
                 out.close()
                 upConn.responseCode
@@ -452,12 +469,19 @@ private fun stopWifiAnalyzer() {
                 val upMbps = ((uploadSize * 8) / upSeconds / 1_000_000).roundToInt()
 
                 runOnUiThread {
-                    speedTestResultText.text = "Download: $downMbps Mbps\nUpload: $upMbps Mbps"
+                    uploadSpeedText.text = "$upMbps"
+                    speedTestResultText.text = "Test complete."
+                    speedTestProgress.visibility = View.GONE
                 }
             } catch (e: Exception) {
-                runOnUiThread { speedTestResultText.text = "Speed test failed: ${e.message}" }
+                runOnUiThread {
+                    speedTestResultText.text = "Speed test failed: ${e.message}"
+                    speedTestProgress.visibility = View.GONE
+                }
             }
         }.start()
     }
-
 }
+
+
+    
