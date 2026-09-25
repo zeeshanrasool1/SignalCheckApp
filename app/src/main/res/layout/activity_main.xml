@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    <FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/bg_fiber">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="140dp"
                 android:layout_marginBottom="16dp">
@@ -55,6 +72,7 @@
 
                 </LinearLayout>
             </FrameLayout>
+
             <!-- IP / ISP SECTION -->
             <TextView style="@style/SectionTitle" android:text="IP and ISP Info" />
             <TextView
